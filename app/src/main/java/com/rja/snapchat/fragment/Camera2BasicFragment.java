@@ -432,7 +432,7 @@ public class Camera2BasicFragment extends Fragment implements FragmentCompat.OnR
         mScreenWidth = size.x;
         mScreenHeight = size.y;
 
-        return inflater.inflate(R.layout.activity_camera, container, false);
+        return inflater.inflate(R.layout.fragment_camera, container, false);
     }
 
     @Override

@@ -6,11 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <!--<TextureView-->
-        <!--android:id="@+id/vsv_texture_view"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"/>-->
-
     <ImageView
         android:id="@+id/vsv_image"
         android:layout_width="match_parent"

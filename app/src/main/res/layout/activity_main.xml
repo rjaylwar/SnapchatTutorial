@@ -26,14 +26,49 @@
 
     <include layout="@layout/toolbar_camera"/>
 
-    <ImageButton
-        android:id="@+id/am_camera_button"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_centerHorizontal="true"
+    <!--<ImageButton-->
+        <!--android:id="@+id/am_camera_button"-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_marginBottom="112dp"-->
+        <!--android:background="@drawable/circle_white"/>-->
+
+    <!--<ImageView-->
+        <!--android:id="@+id/am_chat_button"-->
+        <!--android:layout_width="32dp"-->
+        <!--android:layout_height="32dp"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_marginBottom="72dp"-->
+        <!--android:layout_marginStart="24dp"-->
+        <!--android:background="@drawable/circle_white"/>-->
+
+    <!--<ImageView-->
+        <!--android:id="@+id/am_story_button"-->
+        <!--android:layout_width="32dp"-->
+        <!--android:layout_height="32dp"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_marginBottom="72dp"-->
+        <!--android:layout_marginEnd="24dp"-->
+        <!--android:background="@drawable/circle_white"/>-->
+
+    <!--<ImageView-->
+        <!--android:id="@+id/am_memories_button"-->
+        <!--android:layout_width="32dp"-->
+        <!--android:layout_height="32dp"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginBottom="64dp"-->
+        <!--android:background="@drawable/circle_white"/>-->
+
+    <com.rja.snapchat.view.SnapTabsView
+        android:id="@+id/am_snap_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="100dp"
-        android:background="@drawable/circle_white"/>
+        android:layout_marginBottom="16dp"/>
 
     <FrameLayout
         android:id="@+id/am_left_layout"

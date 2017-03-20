@@ -23,6 +23,9 @@ import com.rja.snapchat.models.IStory;
 import com.rja.snapchat.models.IStoryItem;
 import com.rja.snapchat.util.Print;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Created by rjaylward on 3/5/17
  */
@@ -34,7 +37,12 @@ public class StoryViewer extends RelativeLayout {
     private ImageView mImageView;
     private ProgressBar mProgressBar;
 
-    private IStory mStory;
+    private List<IStory> mAllStories;
+    private int mCurrentStoryIndex = 0;
+    private int mCurrentStoryItemIndex = 0;
+    private boolean mReplay;
+
+    private IStory mCurrentStory;
     private IStoryItem mCurrentItem;
     private SurfaceVideoHelper mVideoHelper;
     private boolean mIsShowing;
@@ -102,13 +110,19 @@ public class StoryViewer extends RelativeLayout {
     }
 
     public void loadStory(IStory story) {
-        mStory = story;
+        mCurrentStory = story;
     }
 
-    private void showCurrentItem() {
-        Print.d(TAG, "showCurrentItem");
-        if(mStory != null) {
-            mCurrentItem = mStory.getCurrentStoryItem();
+    private void showNextItem() {
+        Print.d(TAG, "showNextItem");
+        if(mCurrentStory != null && mCurrentStory.getStoryItems() != null) {
+            if(!mReplay)
+                mCurrentItem = mCurrentStory.getCurrentStoryItem();
+            else {
+                mCurrentStoryItemIndex += 1;
+                if(mCurrentStoryItemIndex < mCurrentStory.getStoryItems().size())
+                    mCurrentItem = mCurrentStory.getStoryItems().get(mCurrentStoryItemIndex);
+            }
             if(mCurrentItem != null) {
                 Print.d(mCurrentItem.getVideoUrl(), mCurrentItem.getImageUrl(), mCurrentItem.getDuration());
                 if(mCurrentItem.getVideoUrl() != null) {
@@ -122,18 +136,27 @@ public class StoryViewer extends RelativeLayout {
                 finished();
             }
         }
+        else
+            finished();
     }
 
     private void finished() {
         Print.d(TAG, "finished()");
 
-        for(IStoryItem iStoryItem : mStory.getStoryItems()) {
+        for(IStoryItem iStoryItem : mCurrentStory.getStoryItems()) {
             Print.v(TAG, iStoryItem.isViewed(), iStoryItem.getImageUrl(), iStoryItem.getVideoUrl());
         }
 
-        mImageView.setVisibility(VISIBLE);
-        mVideoHelper.destroy();
-        hide();
+        if(mCurrentStoryIndex < mAllStories.size() - 1) {
+            mCurrentStoryIndex += 1;
+            mCurrentStory = mAllStories.get(mCurrentStoryIndex);
+            showNextItem();
+        }
+        else {
+            mImageView.setVisibility(VISIBLE);
+            mVideoHelper.destroy();
+            hide();
+        }
     }
 
     private void showImage(final IStoryItem item) {
@@ -175,11 +198,12 @@ public class StoryViewer extends RelativeLayout {
     };
 
     private void next() {
-        Print.d(TAG, "next", mCurrentItem.getVideoUrl(), mCurrentItem.getImageUrl());
-        if(mCurrentItem != null)
+        if(mCurrentItem != null) {
+            Print.d(TAG, "next", mCurrentItem.getVideoUrl(), mCurrentItem.getImageUrl());
             mCurrentItem.setViewed(true);
+        }
 
-        showCurrentItem();
+        showNextItem();
     }
 
     private int mStartRadius;
@@ -187,7 +211,19 @@ public class StoryViewer extends RelativeLayout {
     private int mRevealOriginX;
     private int mRevealOriginY;
 
-    public void show(int originX, int originY) {
+    public void show(IStory story, int originX, int originY) {
+        show(Collections.singletonList(story), originX, originY);
+    }
+
+    public void show(List<IStory> stories, int originX, int originY) {
+        if(stories == null || stories.isEmpty())
+            return;
+
+        mAllStories = stories;
+        mCurrentStoryIndex = 0;
+        mCurrentStoryItemIndex = -1;
+        mCurrentStory = mAllStories.get(mCurrentStoryIndex);
+
         mRevealOriginX = originX;
         mRevealOriginY = originY;
 
@@ -201,7 +237,7 @@ public class StoryViewer extends RelativeLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                showCurrentItem();
+                showNextItem();
             }
 
         });

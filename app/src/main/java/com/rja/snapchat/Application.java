@@ -12,5 +12,6 @@ public class Application extends android.app.Application {
         super.onCreate();
 
         Print.init("Snap", true, null);
+        VideoCache.init(getApplicationContext(), null);
     }
 }

@@ -24,23 +24,6 @@ public class TestDataProvider implements DataProvider {
         other1.setDuration(5000);
         messages.add(other1);
 
-        ChatItem chatMessage = new ChatItem();
-//        switch(mode%3) {
-//            case 0:
-//                chatMessage.setDuration(5000);
-//                chatMessage.setImageUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-456981531.jpg?alt=media&token=f261ab50-38e4-4d82-b41a-667ac01f0bed");
-//                break;
-//            case 1:
-//                chatMessage.setVideoUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-2010441394.mp4?alt=media&token=1c644779-767f-44ba-97c0-100c3dcde372");
-//                break;
-//            case 2:
-//                chatMessage.setMessage("Hello!");
-//                break;
-//        }
-
-        chatMessage.setVideoUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-575156866.mp4?alt=media&token=251308b4-51b5-4255-a1bb-c50d9e73c0ea");
-        messages.add(chatMessage);
-
         ChatItem third = new ChatItem();
         third.setImageUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-456981531.jpg?alt=media&token=f261ab50-38e4-4d82-b41a-667ac01f0bed");
         third.setDuration(3000);
@@ -49,6 +32,21 @@ public class TestDataProvider implements DataProvider {
         ChatItem fourth = new ChatItem();
         fourth.setVideoUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-2010441394.mp4?alt=media&token=1c644779-767f-44ba-97c0-100c3dcde372");
         messages.add(fourth);
+
+        ChatItem chatMessage = new ChatItem();
+        switch(mode%3) {
+            case 0:
+                chatMessage.setDuration(1000);
+                chatMessage.setImageUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-456981531.jpg?alt=media&token=f261ab50-38e4-4d82-b41a-667ac01f0bed");
+                break;
+            case 1:
+                chatMessage.setVideoUrl("https://firebasestorage.googleapis.com/v0/b/snap-21bf6.appspot.com/o/test_images%2FSnapchat-2010441394.mp4?alt=media&token=1c644779-767f-44ba-97c0-100c3dcde372");
+                break;
+            case 2:
+                chatMessage.setMessage("Hello!");
+                break;
+        }
+        messages.add(chatMessage);
 
         conversation.setChatMessages(messages);
         return conversation;

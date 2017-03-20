@@ -24,4 +24,8 @@ public class VideoCache {
             mProxy = new HttpProxyCacheServer(context.getApplicationContext());
     }
 
+    public static void buffer(String url) {
+
+    }
+
 }

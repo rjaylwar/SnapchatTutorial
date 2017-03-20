@@ -7,17 +7,22 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.bumptech.glide.Glide;
 import com.rja.snapchat.adapter.MainViewAdapter;
 import com.rja.snapchat.fragment.Camera2BasicFragment;
 import com.rja.snapchat.fragment.ConversationFragment;
 import com.rja.snapchat.models.IStory;
 import com.rja.snapchat.util.Print;
+import com.rja.snapchat.view.SnapTabsView;
 import com.rja.snapchat.view.StoryViewer;
 
-public class MainActivity extends BaseActivity {
+import java.util.List;
+
+public class MainActivity extends FullScreenActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -30,11 +35,10 @@ public class MainActivity extends BaseActivity {
     private RelativeLayout mRoot;
     private StoryViewer mStoryViewer;
     private View mDivider;
+    private EditText mSearchEditText;
 
     @ColorInt private int LIGHT_BLUE;
     @ColorInt private int LIGHT_PURPLE;
-
-    private float mCameraButtonTranslationY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +65,10 @@ public class MainActivity extends BaseActivity {
                     .commit();
         }
 
-        mCameraButtonTranslationY = getResources().getDimension(R.dimen.camera_button_translation_y);
+        SnapTabsView tabsView = (SnapTabsView) findViewById(R.id.am_snap_tabs);
+        mCameraButton = tabsView.getCenterView();
 
         mBackground = findViewById(R.id.am_background_view);
-        mCameraButton = (ImageView) findViewById(R.id.am_camera_button);
         mCameraButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -79,7 +83,9 @@ public class MainActivity extends BaseActivity {
         });
 
         mViewPager = (ViewPager) findViewById(R.id.am_view_pager);
+
         mViewPager.setAdapter(new MainViewAdapter(getFragmentManager()));
+        tabsView.setViewPager(mViewPager);
         mViewPager.setCurrentItem(1);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -90,28 +96,19 @@ public class MainActivity extends BaseActivity {
                     mBackground.setBackgroundColor(LIGHT_BLUE);
                     mBackground.setAlpha(1 - positionOffset);
                     mDivider.setAlpha(positionOffset);
-                    scale = .7f + (positionOffset * .3f);
-                    mCameraButton.setScaleX(scale);
-                    mCameraButton.setScaleY(scale);
-
-                    mCameraButton.setTranslationY((1 - positionOffset) * mCameraButtonTranslationY);
                 }
                 else if(position == 1) {
                     mBackground.setBackgroundColor(LIGHT_PURPLE);
                     mBackground.setAlpha(positionOffset);
                     mDivider.setAlpha(1 - positionOffset);
-
-                    scale = .7f + ((1 - positionOffset) * .3f);
-                    mCameraButton.setScaleX(scale);
-                    mCameraButton.setScaleY(scale);
-
-                    mCameraButton.setTranslationY(positionOffset * mCameraButtonTranslationY);
                 }
 
-                if((position == 0 && positionOffset > .5) || position == 1 && positionOffset < .5)
-                    mCameraButton.setBackgroundResource(R.drawable.circle_white);
-                else
-                    mCameraButton.setBackgroundResource(R.drawable.circle_gray);
+                if((position == 0 && positionOffset > .5) || position == 1 && positionOffset < .5) {
+                    mSearchEditText.setText(R.string.search);
+                }
+                else {
+                    mSearchEditText.setText(position == 0 ? R.string.chat : R.string.stories);
+                }
             }
 
             @Override
@@ -125,12 +122,35 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
-    public void showStory(IStory story, Point point, final StoryViewer.StoryViewListener listener) {
+    public void showStory(final IStory story, final Point point, final StoryViewer.StoryViewListener listener) {
+        Bufferer.Request request = new Bufferer.Request.Builder()
+                .setImageSize(mStoryViewer.getWidth(), mStoryViewer.getHeight())
+                .setRequiredVideoBufferedPercent(99)
+                .setTimeoutMillis(5000)
+                .setReplay(false)
+                .setMaxFiles(10)
+                .build();
+
+        Bufferer bufferer = new Bufferer(request, Glide.with(this), story, new Bufferer.BufferCallback() {
+
+            @Override
+            public void onBufferedToRequiredPercent(int percent, List<String> loadedUrls, List<String> failedUrls) {
+                showBufferedStory(story, point, listener);
+            }
+
+            @Override
+            public void onBufferingTimedOut(List<String> loadedUrls, List<String> failedUrls) {
+                showBufferedStory(story, point, listener);
+            }
+
+        });
+    }
+
+    private void showBufferedStory(IStory story, Point point, final StoryViewer.StoryViewListener listener) {
         mStoryViewer.loadStory(story);
+
         if(mCameraFragment != null && !mCameraFragment.isPaused())
             mCameraFragment.onPause();
 
@@ -148,12 +168,25 @@ public class MainActivity extends BaseActivity {
 
         });
 
-        mStoryViewer.show(point.x, point.y);
+        mStoryViewer.show(story, point.x, point.y);
     }
 
     private void setUpCameraToolbar() {
         ViewGroup layout = (ViewGroup) findViewById(R.id.toolbar_layout);
         mDivider = findViewById(R.id.toolbar_bottom_divider);
+        mSearchEditText = (EditText) findViewById(R.id.toolbar_search_field);
+
+        mSearchEditText.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String text = mSearchEditText.getText().toString();
+                if(text.equals("Search") || text.equals("Stories") || text.equals("Chat"))
+                    mSearchEditText.setText("");
+            }
+
+        });
+
         ImageView cameraFacingView = (ImageView) findViewById(R.id.toolbar_end_icon);
         cameraFacingView.setOnClickListener(new View.OnClickListener() {
 

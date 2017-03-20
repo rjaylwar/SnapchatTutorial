@@ -1,5 +1,6 @@
 package com.rja.snapchat.view;
 
+import android.animation.ArgbEvaluator;
 import android.content.Context;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
@@ -32,6 +33,7 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
 
     private int mCenterColor;
     private int mOffsetColor;
+    private ArgbEvaluator mColorEval;
 
     public SnapTabsView(@NonNull Context context) {
         this(context, null);
@@ -53,6 +55,8 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
         mCenterColor = ContextCompat.getColor(getContext(), R.color.white);
         mOffsetColor = ContextCompat.getColor(getContext(), R.color.dark_grey);
 
+        mColorEval = new ArgbEvaluator();
+
         mCenterView = (ImageView) findViewById(R.id.vst_center_button);
         mStartView = (ImageView) findViewById(R.id.vst_start_button);
         mEndView = (ImageView) findViewById(R.id.vst_end_button);
@@ -65,8 +69,6 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
             public void onGlobalLayout() {
                 mCenterTranslationY = getHeight() - mBottomView.getBottom();
                 mIndicatorTranslationX = mBottomView.getX() - mStartView.getX();
-
-
 
                 mBottomView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
@@ -135,33 +137,27 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
                     mIndicatorTranslationX * positionOffset
             );
         }
-
-        if((position == 0 && positionOffset > .5) || position == 1 && positionOffset < .5) {
-            mStartView.setColorFilter(mCenterColor);
-            mEndView.setColorFilter(mCenterColor);
-            mCenterView.setColorFilter(mCenterColor);
-        }
-        else {
-            mStartView.setColorFilter(mOffsetColor);
-            mEndView.setColorFilter(mOffsetColor);
-            mCenterView.setColorFilter(mOffsetColor);
-        }
     }
 
-    private void setUpViews(float indicatorAlpha, float centerScale, float centerTranslationY, float indicatorTranslationX) {
-        mIndicator.setAlpha(indicatorAlpha);
-        mIndicator.setScaleX(indicatorAlpha);
+    private void setUpViews(float fractionFromCenter, float centerScale, float centerTransY, float indicatorTransX) {
+        mIndicator.setAlpha(fractionFromCenter);
+        mIndicator.setScaleX(fractionFromCenter);
 
         mCenterView.setScaleX(centerScale);
         mCenterView.setScaleY(centerScale);
 
-        mCenterView.setTranslationY(centerTranslationY);
-        mBottomView.setTranslationY(centerTranslationY);
+        mCenterView.setTranslationY(centerTransY);
+        mBottomView.setTranslationY(centerTransY);
 
-        mIndicator.setTranslationX(indicatorTranslationX);
-        mBottomView.setAlpha(1 - indicatorAlpha);
+        mIndicator.setTranslationX(indicatorTransX);
+        mBottomView.setAlpha(1 - fractionFromCenter);
 
         mBottomView.setClickable(mBottomView.getAlpha() > .5);
+
+        int color = (int) mColorEval.evaluate(fractionFromCenter, mCenterColor, mOffsetColor);
+        mStartView.setColorFilter(color);
+        mEndView.setColorFilter(color);
+        mCenterView.setColorFilter(color);
     }
 
     @Override

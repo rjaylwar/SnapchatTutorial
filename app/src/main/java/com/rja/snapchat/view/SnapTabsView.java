@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -30,6 +31,7 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
 
     private float mCenterTranslationY;
     private float mIndicatorTranslationX;
+    private float mEndViewsTranslationX;
 
     private int mCenterColor;
     private int mOffsetColor;
@@ -55,6 +57,9 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
         mCenterColor = ContextCompat.getColor(getContext(), R.color.white);
         mOffsetColor = ContextCompat.getColor(getContext(), R.color.dark_grey);
 
+        final int centerPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80,
+                getContext().getResources().getDisplayMetrics());
+
         mColorEval = new ArgbEvaluator();
 
         mCenterView = (ImageView) findViewById(R.id.vst_center_button);
@@ -68,14 +73,15 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
             @Override
             public void onGlobalLayout() {
                 mCenterTranslationY = getHeight() - mBottomView.getBottom();
-                mIndicatorTranslationX = mBottomView.getX() - mStartView.getX();
+                float distanceBetween = mBottomView.getX() - mStartView.getX();
+                mEndViewsTranslationX = distanceBetween - centerPadding;
+
+                mIndicatorTranslationX = centerPadding;
 
                 mBottomView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
 
         });
-
-        mIndicator.setBackgroundColor(mOffsetColor);
     }
 
     public void setViewPager(final ViewPager viewPager) {
@@ -142,6 +148,9 @@ public class SnapTabsView extends FrameLayout implements ViewPager.OnPageChangeL
     private void setUpViews(float fractionFromCenter, float centerScale, float centerTransY, float indicatorTransX) {
         mIndicator.setAlpha(fractionFromCenter);
         mIndicator.setScaleX(fractionFromCenter);
+
+        mStartView.setTranslationX(mEndViewsTranslationX * fractionFromCenter);
+        mEndView.setTranslationX(-mEndViewsTranslationX * fractionFromCenter);
 
         mCenterView.setScaleX(centerScale);
         mCenterView.setScaleY(centerScale);

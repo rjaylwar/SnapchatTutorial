@@ -48,7 +48,7 @@
         android:id="@+id/vst_bottom_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:padding="4dp"
+        android:padding="3dp"
         android:layout_marginBottom="48dp"
         android:layout_gravity="center|bottom"
         android:background="@drawable/small_circle"/>

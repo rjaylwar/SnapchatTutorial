@@ -91,7 +91,6 @@ public class MainActivity extends FullScreenActivity {
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                float scale;
                 if(position == 0) {
                     mBackground.setBackgroundColor(LIGHT_BLUE);
                     mBackground.setAlpha(1 - positionOffset);
